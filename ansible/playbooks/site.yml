@@ -1,0 +1,12 @@
+- hosts: api
+  become: true
+
+  roles:
+  - ../roles/docker
+  - ../roles/app
+
+- hosts: db
+  become: true
+
+  roles:
+  - ../roles/db

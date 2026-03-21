@@ -1,0 +1,13 @@
+- name: Pull weather API image
+  community.docker.docker_image:
+    name: sumeshsuseelantechie/weather-api:dev
+    source: pull
+
+- name: Run weather API container
+  community.docker.docker_container:
+    name: weather-api
+    image: sumeshsuseelantechie/weather-api:dev
+    state: started
+    restart_policy: always
+    published_ports:
+    - "8080:8080"
