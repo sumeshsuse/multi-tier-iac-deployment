@@ -1,0 +1,62 @@
+################################
+# Terraform
+################################
+
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+
+*.tfvars
+*.tfvars.json
+
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+.terraform.lock.hcl
+
+
+################################
+# Ansible
+################################
+
+*.retry
+
+
+################################
+# Secrets / keys / tokens
+################################
+
+*.pem
+*.key
+*.pub
+*.env
+.env
+secrets.yml
+
+
+################################
+# OS / Editor
+################################
+
+.DS_Store
+.vscode/
+.idea/
+
+
+################################
+# Logs
+################################
+
+*.log
+
+
+################################
+# Go build files (optional)
+################################
+
+*.exe
+*.out
+bin/
