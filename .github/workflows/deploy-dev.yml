@@ -88,3 +88,23 @@ jobs:
         EOF
 
         cat ansible/inventory/dev.ini
+
+    - name: Install Ansible
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ansible
+
+    - name: Configure SSH key for Ansible
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -H $(awk '/ansible_host/ {print $2}' ansible/inventory/dev.ini | cut -d= -f2) >> ~/.ssh/known_hosts
+
+    - name: Test Ansible connectivity
+      working-directory: ansible
+      run: ansible -i inventory/dev.ini all -m ping
+
+    - name: Run Ansible playbook
+      working-directory: ansible
+      run: ansible-playbook -i inventory/dev.ini playbooks/site.yml
