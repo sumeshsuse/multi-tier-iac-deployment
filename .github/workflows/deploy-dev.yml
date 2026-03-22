@@ -27,3 +27,17 @@ jobs:
         TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
         TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
       run: terraform validate
+
+    - name: Terraform plan
+      working-directory: terraform/dev
+      env:
+        TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+      run: terraform plan
+
+    - name: Terraform apply
+      working-directory: terraform/dev
+      env:
+        TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+      run: terraform apply --auto-approve
