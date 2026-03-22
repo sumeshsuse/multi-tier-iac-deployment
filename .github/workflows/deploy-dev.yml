@@ -68,3 +68,23 @@ jobs:
       with:
         name: tf-output
         path: terraform/dev/tfoutput.json
+
+    - name: Generate Ansible inventory
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+        API1=$(jq -r '.dev_server_ips.value["dev-api-1"]' terraform/dev/tfoutput.json)
+        API2=$(jq -r '.dev_server_ips.value["dev-api-2"]' terraform/dev/tfoutput.json)
+        DB=$(jq -r '.db_server_ip.value' terraform/dev/tfoutput.json)
+
+        cat > ansible/inventory/dev.ini <<EOF
+        [api]
+        dev-api-1 ansible_host=$API1 ansible_user=root
+        dev-api-2 ansible_host=$API2 ansible_user=root
+
+        [db]
+        dev-db-1 ansible_host=$DB ansible_user=root
+        EOF
+
+        cat ansible/inventory/dev.ini
