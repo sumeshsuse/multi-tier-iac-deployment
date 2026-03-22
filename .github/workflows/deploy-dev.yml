@@ -78,6 +78,8 @@ jobs:
         API2=$(jq -r '.dev_server_ips.value["dev-api-2"]' terraform/dev/tfoutput.json)
         DB=$(jq -r '.db_server_ip.value' terraform/dev/tfoutput.json)
 
+        mkdir -p ansible/inventory
+
         cat > ansible/inventory/dev.ini <<EOF
         [api]
         dev-api-1 ansible_host=$API1 ansible_user=root
@@ -85,6 +87,9 @@ jobs:
 
         [db]
         dev-db-1 ansible_host=$DB ansible_user=root
+
+        [all:vars]
+        ansible_ssh_private_key_file=~/.ssh/id_ed25519
         EOF
 
         cat ansible/inventory/dev.ini
@@ -94,12 +99,15 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y ansible
 
-    - name: Configure SSH key for Ansible
+    - name: Setup SSH key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        printf '%s' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
         chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -H $(awk '/ansible_host/ {print $2}' ansible/inventory/dev.ini | cut -d= -f2) >> ~/.ssh/known_hosts
+
+        ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+
+        awk -F'ansible_host=' '/ansible_host=/ {print $2}' ansible/inventory/dev.ini | awk '{print $1}' | xargs -I{} ssh-keyscan -H {} >> ~/.ssh/known_hosts
 
     - name: Test Ansible connectivity
       working-directory: ansible
