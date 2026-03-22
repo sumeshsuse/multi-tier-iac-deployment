@@ -1,0 +1,17 @@
+name: Deploy Dev
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Show repository files
+      run: |
+        pwd
+        ls -R
