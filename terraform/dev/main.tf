@@ -13,7 +13,7 @@ provider "hcloud" {
 
 resource "hcloud_ssh_key" "default" {
   name       = "weather-key"
-  public_key = file("/Users/sumeshsuseelan/.ssh/id_ed25519.pub")
+  public_key = var.ssh_public_key
 }
 
 # Security Group 

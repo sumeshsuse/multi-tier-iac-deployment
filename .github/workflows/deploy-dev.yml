@@ -16,8 +16,14 @@ jobs:
 
     - name: Terraform init (dev)
       working-directory: terraform/dev
+      env:
+        TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
       run: terraform init
 
     - name: Terraform validate
       working-directory: terraform/dev
+      env:
+        TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
       run: terraform validate

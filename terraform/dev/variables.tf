@@ -9,3 +9,8 @@ variable "server_location" {}
 variable "api_servers" {
   type = list(string)
 }
+
+variable "ssh_public_key" {
+  description = "SSH public key"
+  type        = string
+}
