@@ -118,3 +118,13 @@ jobs:
     - name: Run Ansible playbook
       working-directory: ansible
       run: ansible-playbook -i inventory/dev.ini playbooks/site.yml
+
+    - name: Verify application through load balancer
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+        LB_IP=$(jq -r '.dev_load_balancer_ip.value' terraform/dev/tfoutput.json)
+
+        curl --fail "http://$LB_IP/health"
+        curl --fail "http://$LB_IP/weather"
