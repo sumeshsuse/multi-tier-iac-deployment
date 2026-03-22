@@ -11,7 +11,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Show repository files
-      run: |
-        pwd
-        ls -R
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform init (dev)
+      working-directory: terraform/dev
+      run: terraform init
+
+    - name: Terraform validate
+      working-directory: terraform/dev
+      run: terraform validate
