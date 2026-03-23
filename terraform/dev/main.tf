@@ -11,8 +11,9 @@ provider "hcloud" {
   token = var.hcloud_token
 }
 
-data "hcloud_ssh_key" "default" {
-  name = "weather-key"
+resource "hcloud_ssh_key" "default" {
+  name       = "weather-key"
+  public_key = var.ssh_public_key
 }
 
 # Firewall
@@ -58,7 +59,7 @@ module "api_servers" {
   server_image    = var.server_image
   server_location = var.server_location
 
-  ssh_keys     = [data.hcloud_ssh_key.default.id]
+  ssh_keys     = [hcloud_ssh_key.default.id]
   firewall_ids = [hcloud_firewall.dev_firewall.id]
 }
 
@@ -71,7 +72,7 @@ module "db_server" {
   server_image    = var.server_image
   server_location = var.server_location
 
-  ssh_keys     = [data.hcloud_ssh_key.default.id]
+  ssh_keys     = [hcloud_ssh_key.default.id]
   firewall_ids = [hcloud_firewall.dev_firewall.id]
 }
 
