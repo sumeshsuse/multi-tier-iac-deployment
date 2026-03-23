@@ -11,11 +11,10 @@ provider "hcloud" {
   token = var.hcloud_token
 }
 
-data "hcloud_ssh_key" "default" {
-  name = "weather-key"
+resource "hcloud_ssh_key" "default" {
+  name       = "prod-weather-key"
+  public_key = var.ssh_public_key
 }
-
-# Firewall
 
 resource "hcloud_firewall" "prod_firewall" {
   name = "prod-firewall"
@@ -49,8 +48,6 @@ resource "hcloud_firewall" "prod_firewall" {
   }
 }
 
-# API
-
 module "api_servers" {
   source   = "../modules/servers"
   for_each = toset(var.api_servers)
@@ -60,11 +57,9 @@ module "api_servers" {
   server_image    = var.server_image
   server_location = var.server_location
 
-  ssh_keys     = [data.hcloud_ssh_key.default.id]
+  ssh_keys     = [hcloud_ssh_key.default.id]
   firewall_ids = [hcloud_firewall.prod_firewall.id]
 }
-
-# DB
 
 module "db_server" {
   source = "../modules/servers"
@@ -74,6 +69,17 @@ module "db_server" {
   server_image    = var.server_image
   server_location = var.server_location
 
-  ssh_keys     = [data.hcloud_ssh_key.default.id]
+  ssh_keys     = [hcloud_ssh_key.default.id]
   firewall_ids = [hcloud_firewall.prod_firewall.id]
+}
+
+module "load_balancer" {
+  source = "../modules/load_balancer"
+
+  load_balancer_name = "prod-lb"
+  location           = var.server_location
+  destination_port   = 8080
+  api_server_ids = {
+    for name, server in module.api_servers : name => server.server_id
+  }
 }
