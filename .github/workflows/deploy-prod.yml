@@ -1,0 +1,132 @@
+name: Deploy Prod
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  deploy-prod:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform init (prod)
+      working-directory: terraform/prod
+      env:
+        TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        TF_VAR_server_type: ${{ secrets.TF_VAR_PROD_SERVER_TYPE }}
+        TF_VAR_server_image: ${{ secrets.TF_VAR_PROD_SERVER_IMAGE }}
+        TF_VAR_server_location: ${{ secrets.TF_VAR_PROD_SERVER_LOCATION }}
+        TF_VAR_api_servers: ${{ secrets.TF_VAR_PROD_API_SERVERS }}
+      run: terraform init
+
+    - name: Terraform validate
+      working-directory: terraform/prod
+      env:
+        TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        TF_VAR_server_type: ${{ secrets.TF_VAR_PROD_SERVER_TYPE }}
+        TF_VAR_server_image: ${{ secrets.TF_VAR_PROD_SERVER_IMAGE }}
+        TF_VAR_server_location: ${{ secrets.TF_VAR_PROD_SERVER_LOCATION }}
+        TF_VAR_api_servers: ${{ secrets.TF_VAR_PROD_API_SERVERS }}
+      run: terraform validate
+
+    - name: Terraform plan
+      working-directory: terraform/prod
+      env:
+        TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        TF_VAR_server_type: ${{ secrets.TF_VAR_PROD_SERVER_TYPE }}
+        TF_VAR_server_image: ${{ secrets.TF_VAR_PROD_SERVER_IMAGE }}
+        TF_VAR_server_location: ${{ secrets.TF_VAR_PROD_SERVER_LOCATION }}
+        TF_VAR_api_servers: ${{ secrets.TF_VAR_PROD_API_SERVERS }}
+      run: terraform plan -input=false
+
+    - name: Terraform apply
+      working-directory: terraform/prod
+      env:
+        TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
+        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        TF_VAR_server_type: ${{ secrets.TF_VAR_PROD_SERVER_TYPE }}
+        TF_VAR_server_image: ${{ secrets.TF_VAR_PROD_SERVER_IMAGE }}
+        TF_VAR_server_location: ${{ secrets.TF_VAR_PROD_SERVER_LOCATION }}
+        TF_VAR_api_servers: ${{ secrets.TF_VAR_PROD_API_SERVERS }}
+      run: terraform apply -input=false -auto-approve
+
+    - name: Terraform output
+      working-directory: terraform/prod
+      run: terraform output -json > tfoutput.json
+
+    - name: Upload terraform outputs
+      uses: actions/upload-artifact@v4
+      with:
+        name: tf-output-prod
+        path: terraform/prod/tfoutput.json
+
+    - name: Generate Ansible inventory
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+        API1=$(jq -r '.prod_server_ips.value["prod-api-1"]' terraform/prod/tfoutput.json)
+        API2=$(jq -r '.prod_server_ips.value["prod-api-2"]' terraform/prod/tfoutput.json)
+        API3=$(jq -r '.prod_server_ips.value["prod-api-3"]' terraform/prod/tfoutput.json)
+        DB=$(jq -r '.db_server_ip.value' terraform/prod/tfoutput.json)
+
+        mkdir -p ansible/inventory
+
+        cat > ansible/inventory/prod.ini <<EOF
+        [api]
+        prod-api-1 ansible_host=$API1 ansible_user=root
+        prod-api-2 ansible_host=$API2 ansible_user=root
+        prod-api-3 ansible_host=$API3 ansible_user=root
+
+        [db]
+        prod-db-1 ansible_host=$DB ansible_user=root
+
+        [all:vars]
+        ansible_ssh_private_key_file=~/.ssh/id_ed25519
+        EOF
+
+        cat ansible/inventory/prod.ini
+
+    - name: Install Ansible
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ansible
+
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        cat > ~/.ssh/id_ed25519 <<'EOF'
+        ${{ secrets.SSH_PRIVATE_KEY }}
+        EOF
+        chmod 600 ~/.ssh/id_ed25519
+
+        ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+
+        awk -F'ansible_host=' '/ansible_host=/ {print $2}' ansible/inventory/prod.ini | awk '{print $1}' | xargs -I{} ssh-keyscan -H {} >> ~/.ssh/known_hosts
+
+    - name: Test Ansible connectivity
+      working-directory: ansible
+      run: ansible -i inventory/prod.ini all -m ping
+
+    - name: Run Ansible playbook
+      working-directory: ansible
+      run: ansible-playbook -i inventory/prod.ini playbooks/site.yml
+
+    - name: Verify application through load balancer
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+        LB_IP=$(jq -r '.prod_load_balancer_ip.value' terraform/prod/tfoutput.json)
+
+        curl --fail "http://$LB_IP/health"
+        curl --fail "http://$LB_IP/weather"
