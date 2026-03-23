@@ -19,7 +19,7 @@ jobs:
       working-directory: terraform/prod
       env:
         TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
-        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        TF_VAR_ssh_public_key: ${{ secrets.PROD_SSH_PUBLIC_KEY }}
         TF_VAR_server_type: ${{ vars.PROD_SERVER_TYPE }}
         TF_VAR_server_image: ${{ vars.PROD_SERVER_IMAGE }}
         TF_VAR_server_location: ${{ vars.PROD_SERVER_LOCATION }}
@@ -30,7 +30,7 @@ jobs:
       working-directory: terraform/prod
       env:
         TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
-        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        TF_VAR_ssh_public_key: ${{ secrets.PROD_SSH_PUBLIC_KEY }}
         TF_VAR_server_type: ${{ vars.PROD_SERVER_TYPE }}
         TF_VAR_server_image: ${{ vars.PROD_SERVER_IMAGE }}
         TF_VAR_server_location: ${{ vars.PROD_SERVER_LOCATION }}
@@ -41,7 +41,7 @@ jobs:
       working-directory: terraform/prod
       env:
         TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
-        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        TF_VAR_ssh_public_key: ${{ secrets.PROD_SSH_PUBLIC_KEY }}
         TF_VAR_server_type: ${{ vars.PROD_SERVER_TYPE }}
         TF_VAR_server_image: ${{ vars.PROD_SERVER_IMAGE }}
         TF_VAR_server_location: ${{ vars.PROD_SERVER_LOCATION }}
@@ -52,7 +52,7 @@ jobs:
       working-directory: terraform/prod
       env:
         TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
-        TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+        TF_VAR_ssh_public_key: ${{ secrets.PROD_SSH_PUBLIC_KEY }}
         TF_VAR_server_type: ${{ vars.PROD_SERVER_TYPE }}
         TF_VAR_server_image: ${{ vars.PROD_SERVER_IMAGE }}
         TF_VAR_server_location: ${{ vars.PROD_SERVER_LOCATION }}
@@ -105,7 +105,7 @@ jobs:
       run: |
         mkdir -p ~/.ssh
         cat > ~/.ssh/id_ed25519 <<'EOF'
-        ${{ secrets.SSH_PRIVATE_KEY }}
+        ${{ secrets.PROD_SSH_PRIVATE_KEY }}
         EOF
         chmod 600 ~/.ssh/id_ed25519
 
