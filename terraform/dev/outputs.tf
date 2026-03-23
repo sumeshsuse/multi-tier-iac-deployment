@@ -9,5 +9,5 @@ output "db_server_ip" {
 }
 
 output "dev_load_balancer_ip" {
-  value = hcloud_load_balancer.dev_lb.ipv4
+  value = module.load_balancer.load_balancer_ip
 }
