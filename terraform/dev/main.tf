@@ -79,5 +79,7 @@ module "load_balancer" {
   load_balancer_name = "dev-lb"
   location           = var.server_location
   destination_port   = 8080
-  api_server_ids     = [for server in module.api_servers : server.server_id]
+  api_server_ids = {
+    for name, server in module.api_servers : name => server.server_id
+  }
 }

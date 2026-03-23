@@ -14,6 +14,6 @@ variable "destination_port" {
 }
 
 variable "api_server_ids" {
-  description = "List of API server IDs to attach to the load balancer"
-  type        = list(number)
+  description = "Map of API server names to server IDs"
+  type        = map(number)
 }

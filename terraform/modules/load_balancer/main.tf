@@ -24,9 +24,9 @@ resource "hcloud_load_balancer_service" "http" {
 }
 
 resource "hcloud_load_balancer_target" "api_targets" {
-  for_each = toset([for id in var.api_server_ids : tostring(id)])
+  for_each = var.api_server_ids
 
   type             = "server"
   load_balancer_id = hcloud_load_balancer.this.id
-  server_id        = tonumber(each.value)
+  server_id        = each.value
 }
