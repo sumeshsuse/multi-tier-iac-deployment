@@ -20,10 +20,10 @@ jobs:
       env:
         TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
         TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
-        TF_VAR_server_type: ${{ secrets.TF_VAR_PROD_SERVER_TYPE }}
-        TF_VAR_server_image: ${{ secrets.TF_VAR_PROD_SERVER_IMAGE }}
-        TF_VAR_server_location: ${{ secrets.TF_VAR_PROD_SERVER_LOCATION }}
-        TF_VAR_api_servers: ${{ secrets.TF_VAR_PROD_API_SERVERS }}
+        TF_VAR_server_type: ${{ vars.PROD_SERVER_TYPE }}
+        TF_VAR_server_image: ${{ vars.PROD_SERVER_IMAGE }}
+        TF_VAR_server_location: ${{ vars.PROD_SERVER_LOCATION }}
+        TF_VAR_api_servers: ${{ vars.PROD_API_SERVERS }}
       run: terraform init
 
     - name: Terraform validate
@@ -31,10 +31,10 @@ jobs:
       env:
         TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
         TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
-        TF_VAR_server_type: ${{ secrets.TF_VAR_PROD_SERVER_TYPE }}
-        TF_VAR_server_image: ${{ secrets.TF_VAR_PROD_SERVER_IMAGE }}
-        TF_VAR_server_location: ${{ secrets.TF_VAR_PROD_SERVER_LOCATION }}
-        TF_VAR_api_servers: ${{ secrets.TF_VAR_PROD_API_SERVERS }}
+        TF_VAR_server_type: ${{ vars.PROD_SERVER_TYPE }}
+        TF_VAR_server_image: ${{ vars.PROD_SERVER_IMAGE }}
+        TF_VAR_server_location: ${{ vars.PROD_SERVER_LOCATION }}
+        TF_VAR_api_servers: ${{ vars.PROD_API_SERVERS }}
       run: terraform validate
 
     - name: Terraform plan
@@ -42,10 +42,10 @@ jobs:
       env:
         TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
         TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
-        TF_VAR_server_type: ${{ secrets.TF_VAR_PROD_SERVER_TYPE }}
-        TF_VAR_server_image: ${{ secrets.TF_VAR_PROD_SERVER_IMAGE }}
-        TF_VAR_server_location: ${{ secrets.TF_VAR_PROD_SERVER_LOCATION }}
-        TF_VAR_api_servers: ${{ secrets.TF_VAR_PROD_API_SERVERS }}
+        TF_VAR_server_type: ${{ vars.PROD_SERVER_TYPE }}
+        TF_VAR_server_image: ${{ vars.PROD_SERVER_IMAGE }}
+        TF_VAR_server_location: ${{ vars.PROD_SERVER_LOCATION }}
+        TF_VAR_api_servers: ${{ vars.PROD_API_SERVERS }}
       run: terraform plan -input=false
 
     - name: Terraform apply
@@ -53,10 +53,10 @@ jobs:
       env:
         TF_VAR_hcloud_token: ${{ secrets.HCLOUD_TOKEN }}
         TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
-        TF_VAR_server_type: ${{ secrets.TF_VAR_PROD_SERVER_TYPE }}
-        TF_VAR_server_image: ${{ secrets.TF_VAR_PROD_SERVER_IMAGE }}
-        TF_VAR_server_location: ${{ secrets.TF_VAR_PROD_SERVER_LOCATION }}
-        TF_VAR_api_servers: ${{ secrets.TF_VAR_PROD_API_SERVERS }}
+        TF_VAR_server_type: ${{ vars.PROD_SERVER_TYPE }}
+        TF_VAR_server_image: ${{ vars.PROD_SERVER_IMAGE }}
+        TF_VAR_server_location: ${{ vars.PROD_SERVER_LOCATION }}
+        TF_VAR_api_servers: ${{ vars.PROD_API_SERVERS }}
       run: terraform apply -input=false -auto-approve
 
     - name: Terraform output
