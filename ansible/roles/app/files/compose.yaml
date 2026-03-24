@@ -1,6 +1,6 @@
 services:
   server:
-    image: sumeshsuseelantechie/weather-api:dev
+    image: sumeshsuseelantechie/weather-api:latest
     container_name: weather-api
     ports:
       - "8080:8080"
