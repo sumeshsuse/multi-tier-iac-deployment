@@ -7,6 +7,11 @@
     name: docker.io
     state: present
 
+- name: Install docker compose plugin
+  apt:
+    name: docker-compose-plugin
+    state: present
+
 - name: Start docker
   service:
     name: docker

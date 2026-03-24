@@ -1,13 +1,14 @@
-- name: Pull weather API image
-  community.docker.docker_image:
-    name: sumeshsuseelantechie/weather-api:dev
-    source: pull
+- name: Ensure app directory exists
+  file:
+    path: /opt/weather-api
+    state: directory
+    mode: "0755"
 
-- name: Run weather API container
-  community.docker.docker_container:
-    name: weather-api
-    image: sumeshsuseelantechie/weather-api:dev
-    state: started
-    restart_policy: always
-    published_ports:
-    - "8080:8080"
+- name: Copy compose file
+  copy:
+    src: compose.yaml
+    dest: /opt/weather-api/compose.yaml
+    mode: "0644"
+
+- name: Start weather API with Docker Compose
+  command: docker compose -f /opt/weather-api/compose.yaml up -d
