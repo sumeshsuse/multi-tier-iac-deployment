@@ -1,0 +1,11 @@
+hcloud_token    = "YOUR_CLOUD_TOKEN_HERE"
+server_type     = "cx23"
+server_image    = "ubuntu-24.04"
+server_location = "nbg1"
+
+api_servers = [
+  "dev-api-1",
+  "dev-api-2"
+]
+
+ssh_public_key = "YOUR_SSH_PUBLIC_KEY_HERE"
