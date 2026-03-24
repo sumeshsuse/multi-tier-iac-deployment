@@ -5,14 +5,6 @@ terraform {
       version = "~> 1.45"
     }
   }
-
-  cloud {
-    organization = "QVEST"
-
-    workspaces {
-      name = "multi-tier-dev"
-    }
-  }
 }
 
 provider "hcloud" {
