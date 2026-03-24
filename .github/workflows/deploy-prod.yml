@@ -12,6 +12,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
 
@@ -24,7 +31,7 @@ jobs:
         TF_VAR_server_image: ${{ vars.PROD_SERVER_IMAGE }}
         TF_VAR_server_location: ${{ vars.PROD_SERVER_LOCATION }}
         TF_VAR_api_servers: ${{ vars.PROD_API_SERVERS }}
-      run: terraform init
+      run: terraform init -input=false
 
     - name: Terraform validate
       working-directory: terraform/prod
@@ -69,11 +76,13 @@ jobs:
         name: tf-output-prod
         path: terraform/prod/tfoutput.json
 
-    - name: Generate Ansible inventory
+    - name: Install jq
       run: |
         sudo apt-get update
         sudo apt-get install -y jq
 
+    - name: Generate Ansible inventory
+      run: |
         API1=$(jq -r '.prod_server_ips.value["prod-api-1"]' terraform/prod/tfoutput.json)
         API2=$(jq -r '.prod_server_ips.value["prod-api-2"]' terraform/prod/tfoutput.json)
         API3=$(jq -r '.prod_server_ips.value["prod-api-3"]' terraform/prod/tfoutput.json)
@@ -123,9 +132,6 @@ jobs:
 
     - name: Verify application through load balancer
       run: |
-        sudo apt-get update
-        sudo apt-get install -y jq
-
         LB_IP=$(jq -r '.prod_load_balancer_ip.value' terraform/prod/tfoutput.json)
 
         curl --fail "http://$LB_IP/health"
