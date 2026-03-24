@@ -4,7 +4,7 @@
     state: directory
     mode: "0755"
 
-- name: Copy compose file
+- name: Copy docker compose file
   copy:
     src: compose.yaml
     dest: /opt/weather-api/compose.yaml
